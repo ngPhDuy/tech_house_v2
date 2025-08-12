@@ -51,6 +51,34 @@ Danh_gia.belongsTo(Don_hang, {
   targetKey: "ma_don_hang",
 });
 
+// Don hang
+Thanh_vien.hasMany(Don_hang, {
+  foreignKey: "thanh_vien",
+  sourceKey: "ten_dang_nhap",
+});
+Don_hang.belongsTo(Thanh_vien, {
+  foreignKey: "thanh_vien",
+  targetKey: "ten_dang_nhap",
+});
+
+Don_hang.hasMany(Chi_tiet_don_hang, {
+  foreignKey: "ma_don_hang",
+  sourceKey: "ma_don_hang",
+});
+Chi_tiet_don_hang.belongsTo(Don_hang, {
+  foreignKey: "ma_don_hang",
+  targetKey: "ma_don_hang",
+});
+
+San_pham.hasMany(Chi_tiet_don_hang, {
+  foreignKey: "ma_sp",
+  sourceKey: "ma_sp",
+});
+Chi_tiet_don_hang.belongsTo(San_pham, {
+  foreignKey: "ma_sp",
+  targetKey: "ma_sp",
+});
+
 export {
   Ban_phim,
   Chi_tiet_don_hang,
@@ -68,4 +96,5 @@ export {
   Tai_khoan,
   Tai_nghe_bluetooth,
   Thanh_vien,
+  Don_hang,
 };
