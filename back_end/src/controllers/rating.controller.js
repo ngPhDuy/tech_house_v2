@@ -22,6 +22,52 @@ const getAllByProductID = async (req, res) => {
   }
 };
 
-const getAllByOrderID = async (req, res) => {};
+const getAllByOrderID = async (req, res) => {
+  try {
+    const { orderID } = req.params;
+    const { page = 1, limit = 3 } = req.query;
 
-export default { getAllByProductID, getAllByOrderID };
+    const result = await ratingService.getAllByOrderID(page, limit, orderID);
+
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ message: "Ratings not found" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const createOne = async (req, res) => {
+  try {
+    const { orderID, productID } = req.params;
+    const { userID, star, comment } = req.body;
+
+    if (!userID || !star || !comment) {
+      return res
+        .status(400)
+        .json({ message: "User ID, star and comment are required" });
+    }
+
+    const result = await ratingService.createOne(
+      orderID,
+      productID,
+      userID,
+      star,
+      comment
+    );
+
+    if (result) {
+      res.status(201).json({ message: "Rating created successfully", result });
+    } else {
+      res.status(400).json({ message: "Rating creation failed" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default { getAllByProductID, getAllByOrderID, createOne };

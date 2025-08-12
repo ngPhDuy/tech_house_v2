@@ -187,7 +187,14 @@ const getAll = async (page, limit, search, brand, category, sort) => {
     col: "ma_sp",
   });
 
-  return { products, total, page, limit };
+  return {
+    data: products,
+    pagination: {
+      page,
+      limit,
+      total,
+    },
+  };
 };
 
 const getOne = async (productID) => {

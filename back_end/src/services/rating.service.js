@@ -52,4 +52,47 @@ const getAllByProductID = async (page, limit, productID) => {
   };
 };
 
-export default { getAllByProductID };
+const getAllByOrderID = async (page, limit, orderID) => {
+  const offset = (page - 1) * limit;
+
+  const { rows: ratings, count: total } = await Danh_gia.findAndCountAll({
+    where: {
+      ma_dh: orderID,
+    },
+    attributes: {
+      exclude: ["ma_dh"],
+    },
+    limit,
+    offset,
+  });
+
+  return {
+    data: ratings,
+    pagination: { total, page, limit },
+  };
+};
+
+const createOne = async (orderID, productID, userID, star, comment) => {
+  const order = await Don_hang.findOne({
+    where: { ma_don_hang: orderID, thanh_vien: userID },
+  });
+
+  if (!order || order.tinh_trang !== 3) {
+    return false;
+  }
+
+  console.log(orderID, productID, userID, star, comment);
+
+  const result = await Danh_gia.create({
+    ma_dh: orderID,
+    ma_sp: productID,
+    thanh_vien: userID,
+    diem_danh_gia: star,
+    noi_dung: comment,
+    thoi_diem_danh_gia: new Date(),
+  });
+
+  return result;
+};
+
+export default { getAllByProductID, getAllByOrderID, createOne };

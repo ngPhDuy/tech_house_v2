@@ -14,4 +14,8 @@ router.patch("/:orderID/status", orderController.updateStatus);
 
 router.patch("/:orderID/delivery_time", orderController.updateDeliveryTime);
 
+router.get("/:orderID/ratings", ratingController.getAllByOrderID);
+
+router.post("/:orderID/products/:productID", ratingController.createOne);
+
 export default router;

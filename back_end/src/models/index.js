@@ -79,6 +79,25 @@ Chi_tiet_don_hang.belongsTo(San_pham, {
   targetKey: "ma_sp",
 });
 
+// Gio hang
+Thanh_vien.hasMany(Gio_hang, {
+  foreignKey: "thanh_vien",
+  sourceKey: "ten_dang_nhap",
+});
+Gio_hang.belongsTo(Thanh_vien, {
+  foreignKey: "thanh_vien",
+  targetKey: "ten_dang_nhap",
+});
+
+San_pham.hasMany(Gio_hang, {
+  foreignKey: "ma_sp",
+  sourceKey: "ma_sp",
+});
+Gio_hang.belongsTo(San_pham, {
+  foreignKey: "ma_sp",
+  targetKey: "ma_sp",
+});
+
 export {
   Ban_phim,
   Chi_tiet_don_hang,
