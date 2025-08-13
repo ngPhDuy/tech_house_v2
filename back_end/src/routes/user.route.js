@@ -6,6 +6,22 @@ const router = express.Router();
 
 router.post("/sign_up", userController.signUp);
 
+// user information
+//-- for user and admin
+router.get("/:userID", userController.getOne);
+
+//-- for user
+router.patch("/:userID/me", userController.updateOne);
+
+router.patch("/:userID/me/password", userController.updatePasswordByUser);
+
+//-- for admin
+router.get("/", userController.getAll);
+
+router.patch("/:userID/password", userController.updatePasswordByAdmin);
+
+router.patch("/:userID/active_status", userController.updateActiveStatus);
+
 //cart
 router.get("/:userID/carts", cartController.getAllByUserID);
 
