@@ -84,9 +84,42 @@ const deleteProductFromCart = async (userID, productID) => {
   return deletedRows > 0;
 };
 
+const getCheckOutInfo = async (userID) => {
+  const sanPhamAttributes = Object.keys(San_pham.getAttributes());
+  const sanPhamExcludeAttributes = [
+    "phan_loai",
+    "sl_ton_kho",
+    "mo_ta",
+    "mau_sac",
+    "bi_xoa",
+  ];
+  const filteredAttributes = sanPhamAttributes.filter(
+    (field) => !sanPhamExcludeAttributes.includes(field)
+  );
+
+  console.log(sanPhamAttributes);
+
+  const info = Gio_hang.findAll({
+    where: {
+      thanh_vien: userID,
+    },
+    include: {
+      model: San_pham,
+      attributes: [],
+    },
+    attributes: {
+      exclude: ["thanh_vien", "ma_sp"],
+      include: filteredAttributes.map((att) => [col(`San_pham.${att}`), att]),
+    },
+  });
+
+  return info;
+};
+
 export default {
   getAllByUserID,
   addProductToCart,
   updateProductQuantityInCart,
   deleteProductFromCart,
+  getCheckOutInfo,
 };

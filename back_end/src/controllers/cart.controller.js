@@ -91,9 +91,27 @@ const deleteProductFromCart = async (req, res) => {
   }
 };
 
+const getCheckOutInfo = async (req, res) => {
+  try {
+    const { userID } = req.params;
+
+    const result = await cartService.getCheckOutInfo(userID);
+
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ message: "Infomation not found" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export default {
   getAllByUserID,
   addProductToCart,
   updateProductQuantityInCart,
   deleteProductFromCart,
+  getCheckOutInfo,
 };

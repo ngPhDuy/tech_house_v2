@@ -2,7 +2,16 @@ import productService from "../services/product.service.js";
 
 const getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, brand, category, sort } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      brand,
+      category,
+      sort,
+      min_price: minPrice,
+      max_price: maxPrice,
+    } = req.query;
 
     const result = await productService.getAll(
       parseInt(page),
@@ -10,17 +19,12 @@ const getAll = async (req, res) => {
       search,
       brand,
       category,
-      sort
+      sort,
+      minPrice,
+      maxPrice
     );
 
-    res.status(200).json({
-      data: result.products,
-      pagination: {
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-      },
-    });
+    res.status(200).json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });

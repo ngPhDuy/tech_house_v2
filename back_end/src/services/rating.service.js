@@ -39,16 +39,12 @@ const getAllByProductID = async (page, limit, productID) => {
     getAvgRating,
   ]);
 
-  console.log(avgRating);
-
-  console.log(avgRating.diem_danh_gia_trung_binh);
-
   return {
     data: {
       ratings,
-      avgRating: avgRating ? avgRating.diem_danh_gia_trung_binh : 0,
+      avgRating: avgRating ? parseFloat(avgRating.diem_danh_gia_trung_binh) : 0,
     },
-    pagination: { total, page, limit },
+    pagination: { total, page: +page, limit: +limit },
   };
 };
 

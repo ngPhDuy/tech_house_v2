@@ -104,9 +104,19 @@ const categoryConfig = {
     },
   },
 };
-const getAll = async (page, limit, search, brand, category, sort) => {
+const getAll = async (
+  page,
+  limit,
+  search,
+  brand,
+  category,
+  sort,
+  minPrice,
+  maxPrice
+) => {
   // Pagination
   const offset = (page - 1) * limit;
+  console.log(minPrice, maxPrice);
 
   // Search by name and brand
   let whereCondition = {
@@ -129,18 +139,33 @@ const getAll = async (page, limit, search, brand, category, sort) => {
 
   // Filter by brand and category
   if (brand) {
+    let brandArr = Array.isArray(brand) ? brand : [brand];
+
     whereCondition = {
       ...whereCondition,
       [Op.and]: [
         where(fn("LOWER", col("thuong_hieu")), {
-          [Op.eq]: `${brand.toLowerCase()}`,
+          [Op.in]: brandArr.map((item) => item.toLowerCase()),
         }),
       ],
     };
   }
 
-  if (category && categoryHash[category]) {
+  console.log(category, " ", categoryHash[category]);
+  if (category !== undefined && categoryHash[category] !== undefined) {
     whereCondition.phan_loai = categoryHash[category];
+  }
+
+  // Filter by price
+  if (minPrice) {
+    whereCondition.gia_thanh = {
+      [Op.gte]: +minPrice,
+    };
+  }
+  if (maxPrice) {
+    whereCondition.gia_thanh = {
+      [Op.lte]: +maxPrice,
+    };
   }
 
   // Sort
@@ -165,6 +190,7 @@ const getAll = async (page, limit, search, brand, category, sort) => {
           "diem_danh_gia",
         ],
       ],
+      exclude: ["bi_xoa"],
     },
     include: {
       model: Danh_gia,
@@ -187,6 +213,15 @@ const getAll = async (page, limit, search, brand, category, sort) => {
     col: "ma_sp",
   });
 
+  products = products.map((product) => {
+    const plain = product.get({ plain: true });
+
+    return {
+      ...plain,
+      diem_danh_gia: parseFloat(plain.diem_danh_gia),
+    };
+  });
+
   return {
     data: products,
     pagination: {
@@ -198,7 +233,7 @@ const getAll = async (page, limit, search, brand, category, sort) => {
 };
 
 const getOne = async (productID) => {
-  const product = await San_pham.findByPk(productID, {
+  let product = await San_pham.findByPk(productID, {
     attributes: {
       include: [
         [
@@ -206,6 +241,7 @@ const getOne = async (productID) => {
           "diem_danh_gia",
         ],
       ],
+      exclude: ["bi_xoa"],
     },
     include: {
       model: Danh_gia,
@@ -243,7 +279,16 @@ const getOne = async (productID) => {
       break;
   }
 
-  return { product, specs };
+  product.diem_danh_gia = parseFloat(product.diem_danh_gia);
+  console.log("PRODUCT", product);
+
+  return {
+    product: {
+      ...product.dataValues,
+      diem_danh_gia: parseFloat(product.dataValues.diem_danh_gia),
+    },
+    specs,
+  };
 };
 
 const createOne = async (productInfo) => {

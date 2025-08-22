@@ -27,6 +27,9 @@ router.get("/:userID/carts", cartController.getAllByUserID);
 
 router.put("/:userID/carts/:productID", cartController.addProductToCart);
 
+//check_out
+router.get("/:userID/check_out", cartController.getCheckOutInfo);
+
 router.patch(
   "/:userID/carts/:productID",
   cartController.updateProductQuantityInCart
