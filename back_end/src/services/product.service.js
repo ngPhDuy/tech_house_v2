@@ -116,7 +116,7 @@ const getAll = async (
 ) => {
   // Pagination
   const offset = (page - 1) * limit;
-  console.log(minPrice, maxPrice);
+  console.log(search);
 
   // Search by name and brand
   let whereCondition = {

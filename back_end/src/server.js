@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import sequelize from "../config/db.js";
+import cookieParser from "cookie-parser";
 //Router
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
@@ -14,7 +15,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Add middleware
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

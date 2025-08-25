@@ -1,7 +1,14 @@
 import { col } from "sequelize";
 import sequelize from "../../config/db.js";
-import { Nhan_vien, Tai_khoan, Thanh_vien } from "../models/index.js";
+import {
+  Nhan_vien,
+  Tai_khoan,
+  Thanh_vien,
+  RefreshToken,
+} from "../models/index.js";
 import bcrypt from "bcrypt";
+import jwtUtils from "../utils/jwt.js";
+import jwt from "jsonwebtoken";
 
 const BCRYPT_SALT = 10;
 const updateAccountFields = {
@@ -47,7 +54,31 @@ const canMemberLogin = async (username, password) => {
 
   const isValid = await bcrypt.compare(password, user.mat_khau);
 
-  return isValid;
+  if (isValid) {
+    const payload = {
+      userID: username,
+      role: "member",
+    };
+
+    let refreshToken = jwtUtils.signRefreshToken(payload),
+      accessToken = jwtUtils.signAccessToken(payload);
+
+    const decodedRefreshToken = jwt.decode(refreshToken);
+
+    const newRefreshToken = await RefreshToken.create({
+      ten_dang_nhap: username,
+      refresh_token: refreshToken,
+      thoi_diem_tao: new Date(decodedRefreshToken.iat * 1000),
+      thoi_diem_het_han: new Date(decodedRefreshToken.exp * 1000),
+    });
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  return null;
 };
 
 const canEmployeeLogin = async (username, password) => {
@@ -194,6 +225,56 @@ const updateActiveStatus = async (userID, active_status) => {
 
   return user[0] > 0;
 };
+
+const logout = async (accessToken, refreshToken) => {
+  const payload = jwtUtils.verifyAccessToken(accessToken);
+
+  if (refreshToken) {
+    const deleteRefreshToken = await RefreshToken.destroy({
+      where: {
+        ten_dang_nhap: payload.userID,
+        refresh_token: refreshToken,
+      },
+    });
+
+    if (!deleteRefreshToken) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const refreshToken = async (refreshToken) => {
+  let payload;
+  try {
+    payload = jwtUtils.verifyRefreshToken(refreshToken);
+  } catch {
+    return false;
+  }
+
+  const refreshTokenExists = await RefreshToken.findOne({
+    where: {
+      ten_dang_nhap: payload.userID,
+      refresh_token: refreshToken,
+    },
+  });
+
+  if (
+    !refreshTokenExists ||
+    refreshTokenExists.thoi_diem_het_han < new Date()
+  ) {
+    return false;
+  }
+
+  let newAccessToken = jwtUtils.signAccessToken({
+    userID: payload.userID,
+    role: payload.role,
+  });
+
+  return { accessToken: newAccessToken };
+};
+
 export default {
   createOne,
   canMemberLogin,
@@ -204,4 +285,6 @@ export default {
   getAll,
   updatePasswordByAdmin,
   updateActiveStatus,
+  logout,
+  refreshToken,
 };

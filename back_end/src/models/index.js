@@ -15,6 +15,7 @@ import Tablet from "./tablet.model.js";
 import Tai_khoan from "./tai_khoan.model.js";
 import Tai_nghe_bluetooth from "./tai_nghe_bluetooth.model.js";
 import Thanh_vien from "./thanh_vien.model.js";
+import RefreshToken from "./refresh_token.model.js";
 
 // Tai khoan, Nhan vien, Thanh vien
 Tai_khoan.hasOne(Thanh_vien, { foreignKey: "ten_dang_nhap" });
@@ -98,6 +99,10 @@ Gio_hang.belongsTo(San_pham, {
   targetKey: "ma_sp",
 });
 
+// Refresh token
+RefreshToken.belongsTo(Tai_khoan, { foreignKey: "ten_dang_nhap" });
+Tai_khoan.hasMany(RefreshToken, { foreignKey: "ten_dang_nhap" });
+
 export {
   Ban_phim,
   Chi_tiet_don_hang,
@@ -116,4 +121,5 @@ export {
   Tai_nghe_bluetooth,
   Thanh_vien,
   Don_hang,
+  RefreshToken,
 };
