@@ -8,17 +8,23 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import CheckOut from "./pages/Checkout";
 import Products from "./pages/Products";
+import ProtectedRoute from "./ProtectedRoute";
 function App() {
   return (
     <Router>
       <Routes>
+        {/* public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/sign_up" element={<SignUp />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/products/:productID" element={<ProductDetail />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/check_out/:productID?" element={<CheckOut />} />
         <Route path="/products" element={<Products />} />
+
+        {/* member routes */}
+        <Route element={<ProtectedRoute role="member" />}>
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/check_out/:productID?" element={<CheckOut />} />
+        </Route>
       </Routes>
     </Router>
   );

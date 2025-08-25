@@ -1,13 +1,58 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import api from "../AxiosConfig";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [adminLogin, setAdminLogin] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      Swal.fire({
+        title: "Đang đăng nhập...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const res = await api.post("/auth/login", {
+        username,
+        password,
+        adminLogin,
+      });
+
+      if (res.status === 200) {
+        localStorage.setItem("token", res.data.accessToken);
+        Swal.fire({
+          icon: "success",
+          title: "Đăng nhập thành công",
+          text: "Nhanh chóng đến trang chủ",
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          Swal.close();
+          navigate("/");
+        }, 1000);
+      }
+    } catch (err) {
+      console.log(err);
+      Swal.fire({
+        title: "Đăng nhập thất bại",
+        text: "Tài khoản và mật khẩu không đúng",
+        timer: 1000,
+        showConfirmButton: false,
+        icon: "error",
+      });
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen">
       <Header currentPage="none" />
@@ -81,7 +126,10 @@ const Login: React.FC = () => {
               </div>
             </div>
           </form>
-          <button className="bg-primary text-white font-semibold py-2 rounded-md my-2 w-1/2 mx-auto hover:bg-darkSecondary uppercase">
+          <button
+            className="bg-primary text-white font-semibold py-2 rounded-md my-2 w-1/2 mx-auto hover:bg-darkSecondary uppercase"
+            onClick={handleLogin}
+          >
             Đăng nhập
           </button>
         </div>

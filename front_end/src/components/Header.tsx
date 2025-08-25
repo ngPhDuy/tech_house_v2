@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaSearch, FaRegUser, FaRegHeart } from "react-icons/fa";
 import {
   AiOutlineHome,
@@ -8,7 +8,8 @@ import {
   AiOutlineProduct,
   AiOutlineDown,
 } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../AxiosConfig";
 
 export interface IHeaderProps {
   currentPage: "none" | "home" | "mobile" | "tablet" | "laptop" | "accessory";
@@ -39,6 +40,28 @@ const urlMap = {
 };
 const Header: React.FC<IHeaderProps> = (props) => {
   const { currentPage = "none" } = props;
+  const [searchKey, setSearchKey] = useState<string>("");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const userID = token ? JSON.parse(atob(token.split(".")[1])).userID : null;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchKey.trim() !== "") {
+      navigate(`/products?search=${encodeURIComponent(searchKey)}`);
+    }
+  };
+
+  const handleLogout = () => {
+    api
+      .post("/auth/logout", {})
+      .then(() => {
+        localStorage.removeItem("token");
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <header className="w-ful">
@@ -49,17 +72,60 @@ const Header: React.FC<IHeaderProps> = (props) => {
             type="text"
             placeholder="Tìm kiếm sản phẩm"
             className="bg-grayColor w-full focus:outline-none"
+            onChange={(e) => setSearchKey(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <FaSearch size={20} color="gray" />
+          <FaSearch
+            size={20}
+            color="gray"
+            className="cursor-pointer"
+            onClick={() => {
+              searchKey.trim() !== "" &&
+                navigate(`/products?search=${encodeURIComponent(searchKey)}`);
+            }}
+          />
         </div>
         <div className="flex justify-between items-center gap-4 text-white font-semibold">
-          <Link
-            to="/login"
-            className="flex justify-between items-center gap-1 hover:text-primary hover:bg-white hover:scale-105 hover:shadow-md hover:rounded-md hover:py-1 hover:px-2 ease-in-out duration-150"
-          >
-            <FaRegUser />
-            <p>Đăng nhập</p>
-          </Link>
+          {!token && (
+            <Link
+              to="/login"
+              className="flex justify-between items-center gap-1 hover:text-primary hover:bg-white hover:scale-105 hover:shadow-md hover:rounded-md hover:py-1 hover:px-2 ease-in-out duration-150"
+            >
+              <FaRegUser />
+              <p>Đăng nhập</p>
+            </Link>
+          )}
+          {token && (
+            <div className="group relative flex flex-col ease-in-out duration-150 cursor-pointer">
+              <div className="w-full flex justify-between items-center gap-1">
+                <FaRegUser />
+                <p>{userID}</p>
+              </div>
+
+              <div className="absolute left-0 top-full hidden group-hover:block w-48 bg-white rounded-md shadow-lg z-50">
+                <ul className="flex flex-col gap-2 text-black">
+                  <li className="px-4 py-2 hover:bg-primary hover:text-white">
+                    <button>Thông tin cá nhân</button>
+                  </li>
+
+                  <li className="px-4 py-2 hover:bg-primary hover:text-white">
+                    <button>Giỏ hàng</button>
+                  </li>
+
+                  <li className="px-4 py-2 hover:bg-primary hover:text-white">
+                    <button>Lịch sử mua hàng</button>
+                  </li>
+
+                  <li
+                    className="px-4 py-2 hover:bg-primary hover:text-white"
+                    onClick={handleLogout}
+                  >
+                    <button>Đăng xuất</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
           <button className="flex justify-between items-center gap-1 hover:text-primary hover:bg-white hover:scale-105 hover:shadow-md hover:rounded-md hover:py-1 hover:px-2 ease-in-out duration-150">
             <FaRegHeart />
             <p>Yêu thích</p>

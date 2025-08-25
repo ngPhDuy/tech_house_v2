@@ -57,6 +57,7 @@ const BE_HOST = import.meta.env.VITE_BE_HOST;
 const Products: React.FC = () => {
   const [searchParams] = useSearchParams();
   const category = (searchParams.get("category") || "") as Category;
+  const searchKey = searchParams.get("search");
   const [products, setProducts] = useState<IResponse[]>([]);
   const [pagination, setPagination] = useState<IPagination>({
     total: 0,
@@ -79,6 +80,7 @@ const Products: React.FC = () => {
     params.append("limit", String(pagination.limit));
     params.append("page", String(page));
     if (order) params.append("sort", order);
+    if (searchKey) params.append("search", searchKey);
 
     // brand là mảng → lặp append
     filter.brand.forEach((b: string) => params.append("brand", b));
@@ -101,7 +103,7 @@ const Products: React.FC = () => {
       }
     };
     fetchProducts();
-  }, [category, order, filter]);
+  }, [category, order, filter, searchKey]);
 
   console.log(order);
 
