@@ -12,7 +12,7 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 // }
 const signAccessToken = (payload) => {
   return jwt.sign(payload, ACCESS_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_TTL || "15m",
+    expiresIn: process.env.ACCESS_TOKEN_TTL || "30s",
   });
 };
 

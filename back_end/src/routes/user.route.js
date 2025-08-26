@@ -1,6 +1,7 @@
 import express from "express";
 import userController from "../controllers/user.controller.js";
 import cartController from "../controllers/cart.controller.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -23,7 +24,6 @@ router.patch("/:userID/password", userController.updatePasswordByAdmin);
 router.patch("/:userID/active_status", userController.updateActiveStatus);
 
 //cart
-router.get("/:userID/carts", cartController.getAllByUserID);
 
 router.put("/:userID/carts/:productID", cartController.addProductToCart);
 

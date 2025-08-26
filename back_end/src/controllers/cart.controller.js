@@ -2,8 +2,9 @@ import cartService from "../services/cart.service.js";
 
 const getAllByUserID = async (req, res) => {
   try {
-    const { userID } = req.params;
     const { page = 1, limit = 5 } = req.query;
+    const userID = req.user.userID;
+    console.log(userID);
 
     const result = await cartService.getAllByUserID(limit, page, userID);
 
