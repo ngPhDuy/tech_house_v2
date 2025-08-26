@@ -59,6 +59,7 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
+        console.log("New token", data.accessToken);
         const newAccessToken = data.accessToken;
         localStorage.setItem("token", newAccessToken);
 

@@ -3,8 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import axios from "axios";
 import { AiOutlineDelete } from "react-icons/ai";
-
-const BE_HOST = import.meta.env.VITE_BE_HOST;
+import api from "../AxiosConfig";
 
 interface IProduct {
   thanh_vien: string;
@@ -29,7 +28,8 @@ interface IPrice {
 }
 
 const Cart: React.FC = () => {
-  const userID = localStorage.getItem("username") || "khachhang1";
+  const token = localStorage.getItem("token");
+  const userID = JSON.parse(atob(token!.split(".")[1])).userID;
   const productsPerPage = 6;
   const [products, setProducts] = useState<IProduct[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,8 +65,8 @@ const Cart: React.FC = () => {
       updateTimers.current[productID] = setTimeout(() => {
         const product = updatedProducts.find((p) => p.ma_sp === productID);
 
-        axios
-          .patch(`${BE_HOST}/api/users/${userID}/carts/${productID}`, {
+        api
+          .patch(`/users/${userID}/carts/${productID}`, {
             quantity: product?.so_luong,
           })
           .then((response) => {
@@ -87,10 +87,8 @@ const Cart: React.FC = () => {
   };
 
   useEffect(() => {
-    axios
-      .get(
-        `${BE_HOST}/api/users/${userID}/carts?limit=${productsPerPage}&page=${currentPage}`
-      )
+    api
+      .get(`/carts?limit=${productsPerPage}&page=${currentPage}`)
       .then((response) => {
         setProducts(response.data.data);
         setPagination(response.data.pagination);
